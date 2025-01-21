@@ -55,10 +55,21 @@ execute_in_chroot() {
   chroot "$path" /bin/bash -c "$command"
 }
 
-if [[ $# -ne 3 ]]; then
-  echo "Usage: $0 --arch=<arch> --distro=<distro> --path=<path>"
+create_rootfs_archive() {
+  local path="$1"
+  local archive_path="$2"
+  local arch="$3"
+
+  tar --numeric-owner -cJf "${archive_path}/rootfs.${arch}.tar.xz" -C "$path" .
+  echo "Rootfs archive created at ${archive_path}/rootfs.${arch}.tar.xz"
+}
+
+if [[ $# -lt 3 ]]; then
+  echo "Usage: $0 --arch=<arch> --distro=<distro> --path=<path> [--archive=<archive_path>]"
   exit 1
 fi
+
+archive_path=""
 
 for arg in "$@"
 do
@@ -73,6 +84,10 @@ do
       ;;
     --path=*)
       path="${arg#*=}"
+      shift
+      ;;
+    --archive=*)
+      archive_path="${arg#*=}"
       shift
       ;;
     *)
@@ -90,5 +105,7 @@ fi
 create_dnf_conf "$path" "$release" "$arch"
 install_packages "$path" "$arch"
 execute_in_chroot "$path" "passwd -d root"
-# enable sshd example
-# execute_in_chroot "$path" "systemctl enable sshd"
+
+if [[ -n $archive_path ]]; then
+  create_rootfs_archive "$path" "$archive_path" "$arch"
+fi
