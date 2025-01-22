@@ -53,3 +53,15 @@ sudo systemctl restart systemd-binfmt
 
 - Ensure that you have sufficient permissions to execute the script and to run `dnf` commands with `sudo`.
 - The `qemu-*` packages are necessary for emulating different architectures, and restarting `systemd-binfmt` ensures that the binary format support is properly configured.
+
+## Build docker image
+
+```
+docker build -t rosalab/rosa13:loongarch64 .
+```
+
+# builder image
+
+```
+docker build -t rosalab/builder:dnf .
+```
