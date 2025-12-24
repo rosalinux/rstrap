@@ -10,7 +10,7 @@ create_dnf_conf() {
 
   cat > "$path/etc/dnf/dnf.conf" <<EOL
 [main]
-keepcache=1
+keepcache=0
 debuglevel=2
 reposdir=/dev/null
 retries=20
@@ -105,6 +105,7 @@ fi
 create_dnf_conf "$path" "$release" "$arch"
 install_packages "$path" "$arch"
 execute_in_chroot "$path" "passwd -d root"
+execute_in_chroot "$path" "dnf clean all"
 
 if [[ -n $archive_path ]]; then
   create_rootfs_archive "$path" "$archive_path" "$arch"
